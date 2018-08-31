@@ -89,11 +89,24 @@ void uartInit()
     /*Pad configurations */
     HW_WR_REG32(SOC_CORE_PAD_IO_REGISTERS_BASE+CTRL_CORE_PAD_SPI2_SCLK,0x00040001);
     HW_WR_REG32(SOC_CORE_PAD_IO_REGISTERS_BASE+CTRL_CORE_PAD_SPI2_D1,0x00000001);
+    
+    HW_WR_FIELD32(SOC_L4PER_CM_CORE_BASE + CM_L4PER_UART3_CLKCTRL,
+                CM_L4PER_UART3_CLKCTRL_MODULEMODE,
+                CM_L4PER_UART3_CLKCTRL_MODULEMODE_ENABLE);
+
+    while ((HW_RD_FIELD32(SOC_L4PER_CM_CORE_BASE + CM_L4PER_UART3_CLKCTRL,
+                CM_L4PER_UART3_CLKCTRL_IDLEST)) ==
+                CM_L4PER_UART3_CLKCTRL_IDLEST_DISABLE)
+            {
+                ;
+            }
+
     /* Set the UART Parameters */
-    Log_print0(Diags_INFO,"uart3 init enter\n");
+    Log_print1(Diags_INFO,"uart3 init enter baseAddr=%x\n", uartBaseAddr);
     UARTConfigInit(uartBaseAddr, BAUD_RATE_115200, UART_WORD_LENGTH_8,
                     UART_STOP_BIT_1, UART_NO_PARITY,
                     UART_16x_MODE);
+
     Log_print0(Diags_INFO,"uart3 init complete\n");       
 #endif
 }
@@ -162,7 +175,7 @@ Int Server_exec()
     MessageQ_QueueId    queId;
     
 	uartInit();
-	//uartTest();
+	uartTest();
 	
     while (running) {
 
